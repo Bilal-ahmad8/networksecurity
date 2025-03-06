@@ -9,8 +9,8 @@ os.makedirs(log_path, exist_ok=True)
 
 log_file_path = os.path.join(log_path, log_file)
 
-logger = logging.basicConfig(
+logger = logging.getLogger(logging.basicConfig(
     format= '[ %(asctime)s: ] %(lineno)d - %(name)s - %(levelname)s - %(message)s ',
-    level = logging.info,
+    level = logging.INFO,
     filename= log_file_path
-)
+))
