@@ -13,6 +13,7 @@ from networksecurity.entity.artifacts_entity import DataIngestionArtifact
 from networksecurity.entity.config_entity import DataIngestionConfig
 
 load_dotenv()
+mongo_db_url = os.getenv('MONGODB_URL')
 
 class DataIngestion:
     def __init__(self, data_ingestion_config: DataIngestionConfig):
@@ -23,14 +24,14 @@ class DataIngestion:
         
     def export_collection_as_DF(self):
         try:
-            client = MongoClient(os.getenv('MONGODB_URL'))
+            client = MongoClient(mongo_db_url)
             collection_name = self.data_ingestion_config.collection_name
             database = self.data_ingestion_config.database_name
             collection = client[database][collection_name]
 
             df = pd.DataFrame(list(collection.find()))
             if '_id' in df.columns:
-                df.drop(['_id'], axis=1) 
+                df.drop(['_id'], axis=1, inplace=True) 
             
             df.replace({'na': np.nan}, inplace=True)
 
@@ -83,7 +84,7 @@ class DataIngestion:
         
     def initiate_data_ingestion(self):
         try:
-            dataframe=self.export_collection_as_dataframe()
+            dataframe=self.export_collection_as_DF()
             dataframe=self.export_data_into_feature_store(dataframe)
             self.split_data_as_train_test(dataframe)
             dataingestionartifact=DataIngestionArtifact(trained_file_path=self.data_ingestion_config.training_file_path,
